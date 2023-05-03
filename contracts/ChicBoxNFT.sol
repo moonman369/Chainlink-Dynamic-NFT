@@ -32,7 +32,7 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
 
     constructor (uint256 _upkeepInterval, uint256 _nftLevelUpIntervalDays, uint256 _maxUserSupply) ERC721 ("POLYdNFTs", "bNFTs") {
         s_upkeepInterval = _upkeepInterval;
-        i_nftLevelUpIntervalDays = _nftLevelUpIntervalDays * 1 days;
+        i_nftLevelUpIntervalDays = _nftLevelUpIntervalDays /* * 1 days*/;
         s_prevUpkeepTimestamp = block.timestamp;
         i_maxUserSupply = _maxUserSupply;
     }
