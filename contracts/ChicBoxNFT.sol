@@ -15,6 +15,7 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
     struct TokenDetail {
         uint256 lastLevelUpTimestamp;
         uint256 tokenLevel;
+        bool isDevToken;
     }
 
     uint256 private s_upkeepInterval;
@@ -37,7 +38,13 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
     }
 
 
-    function safeMint () public {
+    function setUpkeepInterval (uint256 _newInterval) public onlyOwner() {
+        require (_newInterval > 30, "ChicBoxNFT: Upkeep interval cannot be less than 30 seconds");
+        s_upkeepInterval = _newInterval;
+    }
+
+
+    function safeMint (address _to) public {
         uint256 newId = tokenIdCounter.current();
         tokenIdCounter.increment();
 
@@ -45,22 +52,24 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
 
         s_tokenDetails[newId].lastLevelUpTimestamp = block.timestamp;
         s_tokenDetails[newId].tokenLevel = 0;
+        s_tokenDetails[newId].isDevToken = false;
 
-        _setTokenURI(newId, s_tokenUris[0]);
+        _safeMint(_to, newId); 
 
-        _safeMint(msg.sender, newId);    
+        _setTokenURI(newId, s_tokenUris[0]);   
     }
 
 
-    function devMint () public onlyOwner() {
+    function devMint (address _to) public onlyOwner() {
         uint256 newId = tokenIdCounter.current();
         tokenIdCounter.increment();
         s_tokenDetails[newId].lastLevelUpTimestamp = block.timestamp;
         s_tokenDetails[newId].tokenLevel = 2;
+        s_tokenDetails[newId].isDevToken = true;
+
+        _safeMint(_to, newId);    
 
         _setTokenURI(newId, s_tokenUris[2]);
-
-        _safeMint(msg.sender, newId);    
     }
 
     function checkUpkeep(
@@ -81,12 +90,14 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
         return (upkeepNeeded, "0x0");
     }
 
-    function performUpkeep(bytes calldata /* performData */) external override { 
+    function performUpkeep(
+        bytes calldata /* performData */
+    ) external override { 
         (bool upkeepNeeded, ) = checkUpkeep("");
 
         if(upkeepNeeded) {
             for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
-                if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp > i_nftLevelUpIntervalDays && s_tokenDetails[i].tokenLevel < 2) {
+                if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp > i_nftLevelUpIntervalDays && s_tokenDetails[i].tokenLevel < 2 && !s_tokenDetails[i].isDevToken) {
                     s_tokenDetails[i].tokenLevel++;
                     s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
                     _setTokenURI(i, s_tokenUris[s_tokenDetails[i].tokenLevel]);
@@ -96,5 +107,19 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
     }
 
 
+    function getTokenDetails (uint256 _tokenId) public view returns (TokenDetail memory) {
+        require (_tokenId >= 0 && _tokenId < tokenIdCounter.current(), "ChicBoxNFT: Token with supplied id doesn't exist.");
+        return s_tokenDetails[_tokenId];
+    }
+
+    function getTimeLeftTillNextLevelUp (uint256 _tokenId) public view returns (uint256) {
+        require (_tokenId >= 0 && _tokenId < tokenIdCounter.current(), "ChicBoxNFT: Token with supplied id doesn't exist.");
+        require (s_tokenDetails[_tokenId].tokenLevel < 2, "ChicBoxNFT: Toke has already reached max level.");
+        return s_tokenDetails[_tokenId].lastLevelUpTimestamp + i_nftLevelUpIntervalDays - block.timestamp;
+    }
+
+    function getMaxUserSupply () public view returns (uint256) {
+        return i_maxUserSupply;
+    }
 
 }
