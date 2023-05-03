@@ -24,7 +24,7 @@ const deployChicBox = async (
 const main = async () => {
   const [deployer] = await ethers.getSigners();
 
-  await deployChicBox(deployer.address, 180, 7 * 60, 100);
+  await deployChicBox(deployer.address, 300, 10 * 60, 100);
 };
 
 main()
@@ -35,5 +35,5 @@ main()
 
 //  Deploys: {
 //   1: 0x120EA1395144737693710c9Ed8eF390ba5C64b19
-//   2: 0x25b20D17b25e9f982d40646C386Ae91595a09BcD => current
+//   2: 0xc97d32FBd95fEd8A368502f84cAffeE793f655De => current
 // }

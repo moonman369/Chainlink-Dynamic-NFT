@@ -123,4 +123,8 @@ contract ChicBoxNFT is ERC721URIStorage, KeeperCompatibleInterface, Ownable {
         return i_maxUserSupply;
     }
 
+    function getUpkeepInterval () public view returns (uint256) {
+        return s_upkeepInterval;
+    }
+
 }
