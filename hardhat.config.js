@@ -6,7 +6,7 @@ module.exports = {
 
   networks: {
     sepolia: {
-      url: process.env.SEPOLIA_RPC_URL,
+      url: "https://sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161",
       accounts: [process.env.PRIVATE_KEY_S],
       chainId: 11155111,
       saveDeployments: true,
