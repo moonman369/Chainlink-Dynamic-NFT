@@ -11,5 +11,11 @@ module.exports = {
       chainId: 11155111,
       saveDeployments: true,
     },
+    mumbai: {
+      url: "https://rpc-mumbai.maticvigil.com/",
+      accounts: [process.env.PRIVATE_KEY_S],
+      chainId: 80001,
+      saveDeployments: true,
+    },
   },
 };
