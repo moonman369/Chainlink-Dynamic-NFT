@@ -34,10 +34,10 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
     uint256 private s_upkeepInterval;
     uint256 private s_prevUpkeepTimestamp;
     string [] s_tokenUris = [
-        "https://cdn.discordapp.com/attachments/1103671253509877840/1105228866542387220/346096668_229284673135880_3096119618190984592_n.jpg",
-        "https://cdn.discordapp.com/attachments/1103671253509877840/1105228866827603978/346090674_599131542185455_3227289421851680253_n.jpg",
-        "https://cdn.discordapp.com/attachments/1103671253509877840/1105228867184107531/346103687_136134002782123_1062806860937787889_n.jpg",
-        "https://cdn.discordapp.com/attachments/1103671253509877840/1105228976668029018/344027704_625169222819599_872616007125247412_n.jpg"
+        "https://ipfs.io/ipfs/QmNzSXT5h4wDUJpDu89wxf3PSDGrq9KJ6Tv1txxYeoSrQy?filename=0.json",
+        "https://ipfs.io/ipfs/QmQzVZSNKV9snJ93tNbzTYZM3XKSJLKdUkNQS2jqNAdEPJ?filename=1.json",
+        "https://ipfs.io/ipfs/QmTdFAcnJgBkfUc8ZzCYuutgZVanFg78x9NpLEFa77WthT?filename=2.json",
+        "https://ipfs.io/ipfs/QmUHDPxH2yKnKV3f3Dj2i2k6LoEVUw8eWB1jm4H86J3EKZ?filename=3.json"
     ];
     mapping (uint256 => TokenDetail) private s_tokenDetails;
     uint256 private immutable i_maxUserSupply;
