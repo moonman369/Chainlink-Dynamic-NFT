@@ -75,6 +75,9 @@ const main = async () => {
   const VRF_COO = "0x8103b0a8a00be2ddc778e6e7eaa21791cd364625";
   const SUB_ID = 1009;
   const CALL_BACK_GAS = "2500000";
+  const UPKEEP_INTERVAL = 10;
+  const LEVEL_UP_INTERVAL = 30;
+  const MAX_SUPPLY = 100;
 
   await deployChicBox(
     deployer.address,
@@ -82,9 +85,9 @@ const main = async () => {
     SUB_ID,
     GAS_LANE,
     CALL_BACK_GAS,
-    10,
-    30,
-    100,
+    UPKEEP_INTERVAL,
+    LEVEL_UP_INTERVAL,
+    MAX_SUPPLY,
     chicToken.address
   );
 };
