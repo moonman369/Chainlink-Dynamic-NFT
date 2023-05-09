@@ -30,6 +30,8 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
     uint32 private immutable i_callbackGasLimit;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
+    uint256 public s_randomIncrement;
+    uint256 public s_randomWord;
 
     uint256 private s_upkeepInterval;
     uint256 private s_prevUpkeepTimestamp;
@@ -63,7 +65,7 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         i_vrfCoordinator = VRFCoordinatorV2Interface(_vrfCoordinatorV2);
 
         s_upkeepInterval = _upkeepInterval;
-        i_nftLevelUpIntervalDays = _nftLevelUpIntervalDays * 1 days;
+        i_nftLevelUpIntervalDays = _nftLevelUpIntervalDays /* (* 1 days) */;
         s_prevUpkeepTimestamp = block.timestamp;
         i_maxUserSupply = _maxUserSupply;
         i_chicToken = ChicToken(_chicTokenAddress);
@@ -116,10 +118,11 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
             bytes memory /* performData */
         )
     {
+        bool tokensMinted = tokenIdCounter.current() > 0;
         bool intervalPassed = block.timestamp - s_prevUpkeepTimestamp > s_upkeepInterval;
         bool allTokensEvolved = s_tokenDetails[tokenIdCounter.current() - 1].tokenLevel >= 2;
 
-        upkeepNeeded = intervalPassed && (!allTokensEvolved);
+        upkeepNeeded = intervalPassed && tokensMinted && (!allTokensEvolved);
         return (upkeepNeeded, "0x0");
     }
 
@@ -127,6 +130,7 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         bytes calldata /* performData */
     ) external override { 
         (bool upkeepNeeded, ) = checkUpkeep("");
+        s_prevUpkeepTimestamp = block.timestamp;
 
         if(upkeepNeeded) {
             uint256 requestId = i_vrfCoordinator.requestRandomWords(
@@ -145,16 +149,17 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-        s_prevUpkeepTimestamp = block.timestamp;
-            uint8 randomIncrement = randomWords[0] % 10 < 7 ? 1 : 2;
+            uint8 randomIncrement = randomWords[0] % 1000 < 700 ? 1 : 2;
+            s_randomIncrement = randomIncrement;
+            s_randomWord = randomWords[0];
 
-            for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
-                if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp > i_nftLevelUpIntervalDays && s_tokenDetails[i].tokenLevel < 2 && !s_tokenDetails[i].isDevToken) {
-                    s_tokenDetails[i].tokenLevel += randomIncrement;
-                    s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
-                    _setTokenURI(i, s_tokenUris[s_tokenDetails[i].tokenLevel]);
-                }
-            }
+            // for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
+            //     if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp > i_nftLevelUpIntervalDays && s_tokenDetails[i].tokenLevel < 2 && !s_tokenDetails[i].isDevToken) {
+            //         s_tokenDetails[i].tokenLevel += randomIncrement;
+            //         s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
+            //         _setTokenURI(i, s_tokenUris[s_tokenDetails[i].tokenLevel + randomIncrement]);
+            //     }
+            // }
     } 
 
 

@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy-sepolia": "npx hardhat --network sepolia run scripts/deploy.js",
-    "deploy-mumbai": "npx hardhat --network mumbai run scripts/deploy.js"
+    "deploy-sepolia": "npx hardhat --network sepolia run scripts/deployPipeline.js",
+    "deploy-mumbai": "npx hardhat --network mumbai run scripts/deployPipeline.js,",
+    "deploy-fuji": "npx hardhat --network fuji run scripts/deployPipeline.js"
   },
   "keywords": [],
   "author": "",
