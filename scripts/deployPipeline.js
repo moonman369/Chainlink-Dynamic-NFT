@@ -74,9 +74,9 @@ const main = async () => {
     "0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61";
   const VRF_COO = "0x2ed832ba664535e5886b75d64c46eb9a228c2610";
   const SUB_ID = 658;
-  const CALL_BACK_GAS = "2500000";
-  const UPKEEP_INTERVAL = 5 * 60;
-  const LEVEL_UP_INTERVAL = 5 * 60;
+  const CALL_BACK_GAS = "3500000";
+  const UPKEEP_INTERVAL = 10 * 60;
+  const LEVEL_UP_INTERVAL = 10 * 60;
   const MAX_SUPPLY = 100;
 
   await deployChicBox(

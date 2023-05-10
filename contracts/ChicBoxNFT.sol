@@ -30,16 +30,15 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
     uint32 private immutable i_callbackGasLimit;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private constant NUM_WORDS = 1;
-    uint256 public s_randomIncrement;
     uint256 public s_randomWord;
 
     uint256 private s_upkeepInterval;
     uint256 private s_prevUpkeepTimestamp;
     string [] s_tokenUris = [
-        "https://ipfs.io/ipfs/QmNzSXT5h4wDUJpDu89wxf3PSDGrq9KJ6Tv1txxYeoSrQy?filename=0.json",
-        "https://ipfs.io/ipfs/QmQzVZSNKV9snJ93tNbzTYZM3XKSJLKdUkNQS2jqNAdEPJ?filename=1.json",
-        "https://ipfs.io/ipfs/QmTdFAcnJgBkfUc8ZzCYuutgZVanFg78x9NpLEFa77WthT?filename=2.json",
-        "https://ipfs.io/ipfs/QmUHDPxH2yKnKV3f3Dj2i2k6LoEVUw8eWB1jm4H86J3EKZ?filename=3.json"
+        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/0.json",
+        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/1.json",
+        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/2.json",
+        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/3.json"
     ];
     mapping (uint256 => TokenDetail) private s_tokenDetails;
     uint256 private immutable i_maxUserSupply;
@@ -83,7 +82,7 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         tokenIdCounter.increment();
 
         require (newId < i_maxUserSupply, "dNFT: Max supply limit has been reached.");
-        require (i_chicToken.balanceOf(_to) >= 10 ** i_chicToken.decimals(), "dNFT: User must have atleast 1 CHIC.");
+        require (i_chicToken.balanceOf(_to) >= 1 * 10 ** i_chicToken.decimals(), "dNFT: User must have atleast 1 CHIC.");
 
         s_tokenDetails[newId].lastLevelUpTimestamp = block.timestamp;
         s_tokenDetails[newId].tokenLevel = 0;
@@ -149,17 +148,26 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         uint256, /* requestId */
         uint256[] memory randomWords
     ) internal override {
-            uint8 randomIncrement = randomWords[0] % 1000 < 700 ? 1 : 2;
-            s_randomIncrement = randomIncrement;
+            
             s_randomWord = randomWords[0];
+            uint256 seed = randomWords[0];
+            
 
-            // for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
-            //     if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp > i_nftLevelUpIntervalDays && s_tokenDetails[i].tokenLevel < 2 && !s_tokenDetails[i].isDevToken) {
-            //         s_tokenDetails[i].tokenLevel += randomIncrement;
-            //         s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
-            //         _setTokenURI(i, s_tokenUris[s_tokenDetails[i].tokenLevel + randomIncrement]);
-            //     }
-            // }
+            for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
+                if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp < i_nftLevelUpIntervalDays || 
+                    s_tokenDetails[i].tokenLevel >= 2 || 
+                    s_tokenDetails[i].isDevToken) {
+                        continue;
+                }
+                uint8 nextLevel = s_tokenDetails[i].tokenLevel + 
+                    (s_tokenDetails[i].tokenLevel == 1 
+                        ? (seed % 1000 < 700 ? 1 : 2)
+                        : 1);
+                s_tokenDetails[i].tokenLevel = nextLevel;
+                s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
+                seed /= 10;
+                _setTokenURI(i, s_tokenUris[nextLevel]);
+            }
     } 
 
 
