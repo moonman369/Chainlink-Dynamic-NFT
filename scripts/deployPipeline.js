@@ -113,5 +113,5 @@ main()
 // ChicBoxNFT contract has been deployed at address: 0x14b41B03c2B7a90317bC4AA0E24666B4Cf2b7C58
 
 // Avax
-// ChicToken contract has been deployed at address: 0xc02ECbBfE5498A1C46b6e4aBd08cC1394Cb0418b
-// ChicBoxNFT contract has been deployed at address: 0xD68646C2655df4750fDDD8bF4306444AE2a9cACb
+// ChicToken contract has been deployed at address: 0xCC5C9a0E1aA7fd2a4C6BD603D46aF1851889fEF1
+// ChicBoxNFT contract has been deployed at address: 0xC54eD45a9114442DC296a12B9f529295b6a617FF
