@@ -2,24 +2,28 @@
 
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/KeeperCompatibleInterface.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ChicToken.sol";
 
-contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInterface, Ownable {
+//0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61
+
+contract ChicBoxNFT is ERC721, VRFConsumerBaseV2, KeeperCompatibleInterface, Ownable {
 
     using Counters for Counters.Counter;
+    using Strings for uint256;
     Counters.Counter private tokenIdCounter;
 
     event RandomWordsRequested (uint256 requestId);
 
     struct TokenDetail {
-        uint256 lastLevelUpTimestamp;
-        uint8 tokenLevel;
+        uint256 creationTimestamp;
+        uint256 randomSeed;
         bool isDevToken;
     }
 
@@ -56,7 +60,7 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         uint256 _nftLevelUpIntervalDays, 
         uint256 _maxUserSupply,
         address _chicTokenAddress
-    ) ERC721 ("POLYdNFTs", "bNFTs") VRFConsumerBaseV2 (_vrfCoordinatorV2) {
+    ) ERC721 ("Dynamic Chic NFT", "dCHIC") VRFConsumerBaseV2 (_vrfCoordinatorV2) {
 
         i_gasLane = _gasLane;
         i_subscriptionId = _subscriptionId;
@@ -84,26 +88,31 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
         require (newId < i_maxUserSupply, "dNFT: Max supply limit has been reached.");
         require (i_chicToken.balanceOf(_to) >= 1 * 10 ** i_chicToken.decimals(), "dNFT: User must have atleast 1 CHIC.");
 
-        s_tokenDetails[newId].lastLevelUpTimestamp = block.timestamp;
-        s_tokenDetails[newId].tokenLevel = 0;
+        s_tokenDetails[newId].creationTimestamp = block.timestamp;
+        
+        s_tokenDetails[newId].randomSeed = uint256(keccak256(abi.encodePacked(
+            s_randomWord, 
+            block.timestamp, 
+            newId, 
+            block.prevrandao, 
+            _to
+        ))) % 1000;
+
         s_tokenDetails[newId].isDevToken = false;
+        s_randomWord /= 10;
 
         _safeMint(_to, newId); 
 
-        _setTokenURI(newId, s_tokenUris[0]);   
     }
 
 
     function devMint (address _to) public onlyOwner() {
         uint256 newId = tokenIdCounter.current();
         tokenIdCounter.increment();
-        s_tokenDetails[newId].lastLevelUpTimestamp = block.timestamp;
-        s_tokenDetails[newId].tokenLevel = 2;
+        s_tokenDetails[newId].creationTimestamp = block.timestamp;
         s_tokenDetails[newId].isDevToken = true;
 
         _safeMint(_to, newId);    
-
-        _setTokenURI(newId, s_tokenUris[2]);
     }
 
     function checkUpkeep(
@@ -119,7 +128,7 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
     {
         bool tokensMinted = tokenIdCounter.current() > 0;
         bool intervalPassed = block.timestamp - s_prevUpkeepTimestamp > s_upkeepInterval;
-        bool allTokensEvolved = s_tokenDetails[tokenIdCounter.current() - 1].tokenLevel >= 2;
+        bool allTokensEvolved = _computeTokenLevel(tokenIdCounter.current() - 1) >= 2;
 
         upkeepNeeded = intervalPassed && tokensMinted && (!allTokensEvolved);
         return (upkeepNeeded, "0x0");
@@ -147,28 +156,9 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
     function fulfillRandomWords(
         uint256, /* requestId */
         uint256[] memory randomWords
-    ) internal override {
-            
-            s_randomWord = randomWords[0];
-            uint256 seed = randomWords[0];
-            
-
-            for (uint256 i = 0; i < tokenIdCounter.current(); i++) {
-                if (block.timestamp - s_tokenDetails[i].lastLevelUpTimestamp < i_nftLevelUpIntervalDays || 
-                    s_tokenDetails[i].tokenLevel >= 2 || 
-                    s_tokenDetails[i].isDevToken) {
-                        continue;
-                }
-                uint8 nextLevel = s_tokenDetails[i].tokenLevel + 
-                    (s_tokenDetails[i].tokenLevel == 1 
-                        ? (seed % 1000 < 700 ? 1 : 2)
-                        : 1);
-                s_tokenDetails[i].tokenLevel = nextLevel;
-                s_tokenDetails[i].lastLevelUpTimestamp = block.timestamp;
-                seed /= 10;
-                _setTokenURI(i, s_tokenUris[nextLevel]);
-            }
-    } 
+    ) internal override {    
+        s_randomWord = randomWords[0];
+    }
 
 
     function getTokenDetails (uint256 _tokenId) public view returns (TokenDetail memory) {
@@ -178,8 +168,37 @@ contract ChicBoxNFT is ERC721URIStorage, VRFConsumerBaseV2, KeeperCompatibleInte
 
     function getTimeLeftTillNextLevelUp (uint256 _tokenId) public view returns (uint256) {
         require (_tokenId >= 0 && _tokenId < tokenIdCounter.current(), "ChicBoxNFT: Token with supplied id doesn't exist.");
-        require (s_tokenDetails[_tokenId].tokenLevel < 2, "ChicBoxNFT: Token has already reached max level.");
-        return s_tokenDetails[_tokenId].lastLevelUpTimestamp + i_nftLevelUpIntervalDays - block.timestamp;
+        require (_computeTokenLevel(_tokenId) < 2, "ChicBoxNFT: Token has already reached max level.");
+        return _computeTokenLevel(_tokenId) == 0
+                ? (s_tokenDetails[_tokenId].creationTimestamp + i_nftLevelUpIntervalDays - block.timestamp)
+                : (s_tokenDetails[_tokenId].creationTimestamp + 2 * i_nftLevelUpIntervalDays - block.timestamp);
+    }
+
+    function getTimeTillNextUpkeep() public view returns (int256) {
+        return int256( s_upkeepInterval - (block.timestamp - s_prevUpkeepTimestamp));
+    }
+
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        return s_tokenUris[_computeTokenLevel(_tokenId)];
+    }
+
+    function _computeTokenLevel (uint256 _id) internal view returns (uint256) {
+        require (_id >= 0 && _id < tokenIdCounter.current(), "ChicBoxNFT: Token with supplied id doesn't exist.");
+        if (s_tokenDetails[_id].isDevToken) {
+            return 2;
+        }
+        else if (block.timestamp < (s_tokenDetails[_id].creationTimestamp + i_nftLevelUpIntervalDays)) {
+            return 0;
+        }
+        else if (
+            block.timestamp > (s_tokenDetails[_id].creationTimestamp + i_nftLevelUpIntervalDays) && 
+            block.timestamp <= (s_tokenDetails[_id].creationTimestamp + 2 * i_nftLevelUpIntervalDays)
+        ) {
+            return 1;
+        }
+        else {
+            return s_tokenDetails[_id].randomSeed < 700 ? 2 : 3;
+        }
     }
 
     function getMaxUserSupply () public view returns (uint256) {
