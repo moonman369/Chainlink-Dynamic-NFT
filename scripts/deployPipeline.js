@@ -71,9 +71,12 @@ const main = async () => {
   );
 
   const GAS_LANE =
-    "0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61";
-  const VRF_COO = "0x2ed832ba664535e5886b75d64c46eb9a228c2610";
-  const SUB_ID = 658;
+    "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f"; // mumbai
+  // fuji "0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61";
+  const VRF_COO = "0x7a1bac17ccc5b313516c5e16fb24f7659aa5ebed"; // mumbai
+  // fuji "0x2ed832ba664535e5886b75d64c46eb9a228c2610";
+  const SUB_ID = 4611;
+  // fuji 658;
   const CALL_BACK_GAS = "2500000";
   const UPKEEP_INTERVAL = 5 * 60;
   const LEVEL_UP_INTERVAL = 10 * 60;
