@@ -39,10 +39,10 @@ contract ChicBoxNFT is ERC721, VRFConsumerBaseV2, KeeperCompatibleInterface, Own
     uint256 private s_upkeepInterval;
     uint256 private s_prevUpkeepTimestamp;
     string [] s_tokenUris = [
-        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/0.json",
-        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/1.json",
-        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/2.json",
-        "https://ipfs.io/ipfs/QmNqJkRSTzMRZXY3ZaGEkPFpoNkMHJ4QRZfmVXfaZQCRRa/3.json"
+        "https://ipfs.io/ipfs/QmdqJovbm31rKcYvm1WyFMQUgNqu5Y5xW5kfLKQY1RSEpy/0.json",
+        "https://ipfs.io/ipfs/QmdqJovbm31rKcYvm1WyFMQUgNqu5Y5xW5kfLKQY1RSEpy/1.json",
+        "https://ipfs.io/ipfs/QmdqJovbm31rKcYvm1WyFMQUgNqu5Y5xW5kfLKQY1RSEpy/2.json",
+        "https://ipfs.io/ipfs/QmdqJovbm31rKcYvm1WyFMQUgNqu5Y5xW5kfLKQY1RSEpy/3.json"
     ];
     mapping (uint256 => TokenDetail) private s_tokenDetails;
     uint256 private immutable i_maxUserSupply;

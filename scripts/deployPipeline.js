@@ -75,11 +75,11 @@ const main = async () => {
   // fuji "0x354d2f95da55398f44b7cff77da56283d9c6c829a4bdf1bbcaf2ad6a4d081f61";
   const VRF_COO = "0x7a1bac17ccc5b313516c5e16fb24f7659aa5ebed"; // mumbai
   // fuji "0x2ed832ba664535e5886b75d64c46eb9a228c2610";
-  const SUB_ID = 4611;
+  const SUB_ID = 4746;
   // fuji 658;
   const CALL_BACK_GAS = "2500000";
-  const UPKEEP_INTERVAL = 5 * 60;
-  const LEVEL_UP_INTERVAL = 10 * 60;
+  const UPKEEP_INTERVAL = 60;
+  const LEVEL_UP_INTERVAL = 60;
   const MAX_SUPPLY = 100;
 
   await deployChicBox(
@@ -112,9 +112,8 @@ main()
 // ChicBoxNFT contract has been deployed at address: 0x24C11d6d347DE57Bb435FFd66Ec7ECb960F11593
 
 // Mumbai
-// ChicToken contract has been deployed at address: 0xeD5F7D3B8bDe22c8dCcAcEF86ADBc25948BEa4e7
-// ChicBoxNFT contract has been deployed at address: 0x14b41B03c2B7a90317bC4AA0E24666B4Cf2b7C58
-
+// ChicToken contract has been deployed at address: 0xABf4F42D65a4BE05BFDF406d95D408802FdC394c
+// ChicBoxNFT contract has been deployed at address: 0x719F77C2265b39C93F6fbe20F7Ce665e2A9bf614
 // Avax
-// ChicToken contract has been deployed at address: 0xCC5C9a0E1aA7fd2a4C6BD603D46aF1851889fEF1
-// ChicBoxNFT contract has been deployed at address: 0xC54eD45a9114442DC296a12B9f529295b6a617FF
+// ChicToken contract has been deployed at address: 0xb33Fb5c119ce969Fec1b1735b4fFDC129498b134
+// ChicBoxNFT contract has been deployed at address: 0x085d4E65D451fD35DE42c124c4C47d373b42cfA8
