@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy-sepolia": "npx hardhat --network sepolia run scripts/deployPipeline.js",
-    "deploy-mumbai": "npx hardhat --network mumbai run scripts/deployPipeline.js",
-    "deploy-fuji": "npx hardhat --network fuji run scripts/deployPipeline.js"
+    "deploy-sepolia": "npx hardhat --network sepolia run scripts/deployPipelineSepolia.js",
+    "deploy-mumbai": "npx hardhat --network mumbai run scripts/deployPipelineMumbai.js",
+    "deploy-fuji": "npx hardhat --network fuji run scripts/deployPipelineFuji.js",
+    "deploy-goerli": "npx hardhat --network goerli run scripts/deployPipelineGoerli.js"
   },
   "keywords": [],
   "author": "",
