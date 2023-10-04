@@ -1,6 +1,6 @@
-# Sample Hardhat Project
+# Chainlink Dynamic NFT
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This is the smart contract for a Dynamic NFT. A Dynamic NFT is an NFT that changes it's metadata depending upon some given condition.
 
 Try running some of the following tasks:
 
